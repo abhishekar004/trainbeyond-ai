@@ -5,6 +5,13 @@ import { Dumbbell, Home, BarChart2, Info, LogOut, User } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
+import { 
+  NavigationMenu,
+  NavigationMenuList,
+  NavigationMenuItem,
+  NavigationMenuLink,
+  navigationMenuTriggerStyle,
+} from '@/components/ui/navigation-menu';
 
 const Header: React.FC = () => {
   const location = useLocation();
