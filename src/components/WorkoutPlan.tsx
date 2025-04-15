@@ -4,7 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Calendar, CheckCircle2, ExternalLink, PlayCircle } from "lucide-react";
-import { fetchExercisesByBodyPart, fetchExerciseVideos, Exercise, Video, WorkoutPlan as WorkoutPlanType } from '@/services/exerciseApi';
+import { searchExercisesByBodyPart, fetchExerciseVideos, Exercise, Video, WorkoutPlan as WorkoutPlanType } from '@/services/exerciseApi';
 
 interface WorkoutPlanProps {
   plan: WorkoutPlanType;
@@ -40,7 +40,7 @@ const WorkoutPlan: React.FC<WorkoutPlanProps> = ({ plan, onBack }) => {
         bodyPart = 'waist';
       }
       
-      const exerciseData = await fetchExercisesByBodyPart(bodyPart);
+      const exerciseData = await searchExercisesByBodyPart(bodyPart);
       // Limit to 4 exercises for demo purposes
       setExercises(exerciseData.slice(0, 4));
       setLoadingExercises(false);
