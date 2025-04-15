@@ -4,7 +4,14 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Calendar, CheckCircle2, ExternalLink, PlayCircle } from "lucide-react";
-import { searchExercisesByBodyPart, fetchExerciseVideos, Exercise, Video, WorkoutPlan as WorkoutPlanType } from '@/services/exerciseApi';
+import { 
+  searchExercisesByBodyPart, 
+  fetchExerciseVideos, 
+  Exercise, 
+  Video, 
+  WorkoutPlan as WorkoutPlanType,
+  getTargetMusclesByFocus 
+} from '@/services/exerciseApi';
 
 interface WorkoutPlanProps {
   plan: WorkoutPlanType;
@@ -18,7 +25,7 @@ const WorkoutPlan: React.FC<WorkoutPlanProps> = ({ plan, onBack }) => {
   const [loadingExercises, setLoadingExercises] = useState(false);
   const [loadingVideos, setLoadingVideos] = useState(false);
 
-  // For demo purposes, we'll load a few sample exercises when a day is selected
+  // For demo purposes, we'll load exercises when a day is selected
   useEffect(() => {
     const loadExercises = async () => {
       setLoadingExercises(true);
@@ -31,20 +38,11 @@ const WorkoutPlan: React.FC<WorkoutPlanProps> = ({ plan, onBack }) => {
       
       const currentDay = plan.weeklySchedule[dayIndex];
       
-      // Determine body parts to load based on the focus
-      let bodyPart = 'back';
-      
-      if (currentDay.focus.toLowerCase().includes('upper')) {
-        bodyPart = 'upper arms';
-      } else if (currentDay.focus.toLowerCase().includes('lower')) {
-        bodyPart = 'upper legs';
-      } else if (currentDay.focus.toLowerCase().includes('chest')) {
-        bodyPart = 'chest';
-      } else if (currentDay.focus.toLowerCase().includes('core')) {
-        bodyPart = 'waist';
-      }
+      // Get body part to target based on the day's focus and goal
+      const bodyPart = getTargetMusclesByFocus(currentDay.focus, plan.goal);
       
       try {
+        console.log(`Loading exercises for ${currentDay.focus} (${bodyPart}) based on ${plan.goal} goal`);
         const exerciseData = await searchExercisesByBodyPart(bodyPart);
         // Limit to 4 exercises for demo purposes
         setExercises(exerciseData ? exerciseData.slice(0, 4) : []);
@@ -80,8 +78,10 @@ const WorkoutPlan: React.FC<WorkoutPlanProps> = ({ plan, onBack }) => {
       const currentDay = plan.weeklySchedule[dayIndex];
       
       try {
-        // Get videos related to the day's focus
-        const videoData = await fetchExerciseVideos(`${currentDay.focus} workout`);
+        // Get videos related to the day's focus and goal
+        const searchQuery = `${currentDay.focus} workout for ${plan.goal}`;
+        console.log(`Searching videos for: ${searchQuery}`);
+        const videoData = await fetchExerciseVideos(searchQuery);
         setVideos(videoData || []);
       } catch (error) {
         console.error('Error loading videos:', error);

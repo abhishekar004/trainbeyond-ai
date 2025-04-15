@@ -73,7 +73,7 @@ export const fetchExercises = async (limit = 10): Promise<Exercise[]> => {
 };
 
 // Search exercises by body part
-export const searchExercisesByBodyPart = async (bodyPart: string): Promise<Exercise[]> => {
+export const searchExercisesByBodyPart = async (bodyPart: string, goal?: string): Promise<Exercise[]> => {
   try {
     const response = await fetch(`${EXERCISE_API_URL}/bodyPart/${bodyPart}`, {
       method: 'GET',
@@ -179,6 +179,45 @@ export const generateWorkoutPlan = async (
   }
 };
 
+// Target muscle mappings by workout focus to make plans more specific
+const getTargetMusclesByFocus = (focus: string, goal: string): string => {
+  // Base mapping for any focus
+  const baseMappings: Record<string, string> = {
+    'Full Body': 'back',
+    'Upper Body': 'upper arms',
+    'Lower Body': 'upper legs',
+    'Chest & Triceps': 'chest',
+    'Back & Biceps': 'back',
+    'Shoulders & Arms': 'upper arms',
+    'Legs & Core': 'upper legs',
+    'Cardio & Core': 'waist',
+    'Cardio': 'cardio',
+    'Core': 'waist',
+    'Mobility & Core': 'waist',
+  };
+  
+  // Goal-specific focus overrides
+  if (goal.toLowerCase().includes('weight loss') || goal.toLowerCase().includes('fat loss')) {
+    return baseMappings[focus] || 'cardio'; // Default to cardio for weight loss if focus not found
+  } else if (goal.toLowerCase().includes('muscle') || goal.toLowerCase().includes('strength')) {
+    // For muscle gain, prioritize strength exercises
+    const muscleGainMappings: Record<string, string> = {
+      'Full Body': 'back',
+      'Upper Body': 'chest',
+      'Lower Body': 'upper legs',
+      'Chest & Triceps': 'chest',
+      'Back & Biceps': 'back',
+      'Shoulders & Arms': 'upper arms',
+      'Legs & Core': 'upper legs',
+      'Core': 'waist',
+    };
+    return muscleGainMappings[focus] || baseMappings[focus] || 'back';
+  } else {
+    // General fitness - use base mappings
+    return baseMappings[focus] || 'back';
+  }
+};
+
 // This is a simulation of the Gemini AI API response for demo purposes
 const simulateGeminiAPI = async (goal: string, level: string): Promise<WorkoutPlan> => {
   // In a real implementation, this would call the Gemini API
@@ -196,7 +235,7 @@ const simulateGeminiAPI = async (goal: string, level: string): Promise<WorkoutPl
         {
           day: "Monday",
           focus: "Full Body HIIT",
-          exercises: [] // We'll populate these from the API later
+          exercises: []
         },
         {
           day: "Tuesday",
@@ -311,3 +350,6 @@ const simulateGeminiAPI = async (goal: string, level: string): Promise<WorkoutPl
   
   return plan;
 };
+
+// Export the getTargetMusclesByFocus function for use in other components
+export { getTargetMusclesByFocus };
