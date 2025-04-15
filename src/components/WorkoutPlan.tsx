@@ -23,9 +23,13 @@ const WorkoutPlan: React.FC<WorkoutPlanProps> = ({ plan, onBack }) => {
     const loadExercises = async () => {
       setLoadingExercises(true);
       const dayIndex = parseInt(activeDay);
-      const currentDay = plan.weeklySchedule[dayIndex];
+      // Add null check for plan and weeklySchedule
+      if (!plan || !plan.weeklySchedule || !plan.weeklySchedule[dayIndex]) {
+        setLoadingExercises(false);
+        return;
+      }
       
-      if (!currentDay) return;
+      const currentDay = plan.weeklySchedule[dayIndex];
       
       // Determine body parts to load based on the focus
       let bodyPart = 'back';
@@ -40,34 +44,73 @@ const WorkoutPlan: React.FC<WorkoutPlanProps> = ({ plan, onBack }) => {
         bodyPart = 'waist';
       }
       
-      const exerciseData = await searchExercisesByBodyPart(bodyPart);
-      // Limit to 4 exercises for demo purposes
-      setExercises(exerciseData.slice(0, 4));
-      setLoadingExercises(false);
+      try {
+        const exerciseData = await searchExercisesByBodyPart(bodyPart);
+        // Limit to 4 exercises for demo purposes
+        setExercises(exerciseData ? exerciseData.slice(0, 4) : []);
+      } catch (error) {
+        console.error('Error loading exercises:', error);
+        setExercises([]);
+      } finally {
+        setLoadingExercises(false);
+      }
     };
     
     loadExercises();
-  }, [activeDay, plan.weeklySchedule]);
+  }, [activeDay, plan]);
   
   // Load related videos when exercises are loaded
   useEffect(() => {
     const loadVideos = async () => {
-      if (exercises.length === 0) return;
+      // Check if exercises exist before proceeding
+      if (!exercises || exercises.length === 0) {
+        setVideos([]);
+        return;
+      }
       
       setLoadingVideos(true);
       const dayIndex = parseInt(activeDay);
+      
+      // Add null check for plan and weeklySchedule
+      if (!plan || !plan.weeklySchedule || !plan.weeklySchedule[dayIndex]) {
+        setLoadingVideos(false);
+        return;
+      }
+      
       const currentDay = plan.weeklySchedule[dayIndex];
       
-      if (!currentDay) return;
-      
-      // Get videos related to the day's focus
-      const videoData = await fetchExerciseVideos(`${currentDay.focus} workout`);
-      setVideos(videoData);
-      setLoadingVideos(false);
+      try {
+        // Get videos related to the day's focus
+        const videoData = await fetchExerciseVideos(`${currentDay.focus} workout`);
+        setVideos(videoData || []);
+      } catch (error) {
+        console.error('Error loading videos:', error);
+        setVideos([]);
+      } finally {
+        setLoadingVideos(false);
+      }
     };
     
     loadVideos();
-  }, [exercises, activeDay, plan.weeklySchedule]);
+  }, [exercises, activeDay, plan]);
+
+  // Add null check for plan
+  if (!plan || !plan.weeklySchedule) {
+    return (
+      <div className="container mx-auto px-4 py-8">
+        <div className="flex items-center mb-6">
+          <Button variant="ghost" onClick={onBack} className="mr-2">
+            <ArrowLeft className="h-4 w-4 mr-2" />
+            Back
+          </Button>
+          <h2 className="text-2xl font-bold">Workout Plan</h2>
+        </div>
+        <div className="text-center py-8">
+          <p>No workout plan data available. Please go back and try again.</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -108,7 +151,7 @@ const WorkoutPlan: React.FC<WorkoutPlanProps> = ({ plan, onBack }) => {
             <div className="mt-6">
               <h4 className="font-medium mb-2">Tips for Success:</h4>
               <ul className="space-y-2">
-                {plan.tips.map((tip, index) => (
+                {(plan.tips || []).map((tip, index) => (
                   <li key={index} className="flex items-start">
                     <CheckCircle2 className="h-5 w-5 text-green-500 mr-2 mt-0.5 flex-shrink-0" />
                     <span className="text-sm">{tip}</span>
@@ -144,7 +187,7 @@ const WorkoutPlan: React.FC<WorkoutPlanProps> = ({ plan, onBack }) => {
                       <div className="h-4 bg-slate-200 rounded w-32 mx-auto"></div>
                     </div>
                   </div>
-                ) : exercises.length > 0 ? (
+                ) : exercises && exercises.length > 0 ? (
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     {exercises.map((exercise) => (
                       <Card key={exercise.id} className="overflow-hidden">
@@ -186,7 +229,7 @@ const WorkoutPlan: React.FC<WorkoutPlanProps> = ({ plan, onBack }) => {
                       <div className="h-4 bg-slate-200 rounded w-32 mx-auto"></div>
                     </div>
                   </div>
-                ) : videos.length > 0 ? (
+                ) : videos && videos.length > 0 ? (
                   <div className="space-y-4">
                     {videos.map((video) => (
                       <Card key={video.id.videoId} className="overflow-hidden">
