@@ -1,73 +1,87 @@
-# Welcome to your Lovable project
+# TrainBeyond AI 🏋️‍♂️ 🧠
 
-## Project info
+> Train with Purpose. Powered by AI. Inspired by You.
 
-**URL**: https://lovable.dev/projects/fa739e49-dc86-46dd-bd29-6996cebb8d89
+TrainBeyond AI is a revolutionary fitness platform that combines artificial intelligence, personalized training methodologies, and motivational psychology to create a next-generation workout experience.
 
-## How can I edit this code?
+![TrainBeyond AI Banner](docs/images/banner.png)
 
-There are several ways of editing your application.
+## 🌟 Features
 
-**Use Lovable**
+- **AI-Powered Workout Plans**: Personalized routines that adapt to your progress
+- **Smart Progress Tracking**: Visual analytics and performance metrics
+- **Motivational Framework**: Inspired by "Plus Ultra" (My Hero Academia) and "Surpass Your Limits" (Black Clover)
+- **Intelligent Adaptation**: Real-time adjustments based on your performance
+- **Beautiful UI**: Modern, responsive interface built with React and Tailwind CSS
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/fa739e49-dc86-46dd-bd29-6996cebb8d89) and start prompting.
+## 🚀 Tech Stack
 
-Changes made via Lovable will be committed automatically to this repo.
+- **Frontend**: React, TypeScript, Tailwind CSS, Shadcn/UI
+- **Backend**: Supabase
+- **Database**: PostgreSQL
+- **Authentication**: Supabase Auth
+- **AI/ML**: Custom transformer models for workout generation
 
-**Use your preferred IDE**
+## 📖 Documentation
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+- [Research Paper](docs/TrainBeyond_AI_Research_Paper.md)
+- [Technical Documentation](docs/technical/)
+- [API Reference](docs/api/)
+- [User Guide](docs/user-guide/)
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+## 🛠️ Development
 
-Follow these steps:
+### Prerequisites
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+- Node.js 16+
+- npm or yarn
+- Supabase account
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+### Installation
 
-# Step 3: Install the necessary dependencies.
-npm i
+1. Clone the repository:
+```bash
+git clone https://github.com/yourusername/trainbeyond-ai.git
+cd trainbeyond-ai
+```
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
+2. Install dependencies:
+```bash
+npm install
+```
+
+3. Set up environment variables:
+```bash
+cp .env.example .env
+# Add your Supabase credentials
+```
+
+4. Start the development server:
+```bash
 npm run dev
 ```
 
-**Edit a file directly in GitHub**
+## 🤝 Contributing
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+We welcome contributions! Please see our [Contributing Guidelines](CONTRIBUTING.md) for details.
 
-**Use GitHub Codespaces**
+## 📄 License
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-## What technologies are used for this project?
+## 📬 Contact
 
-This project is built with:
+For inquiries and feedback:
+- Email: abhishekarpulla@gmail.com
+- [GitHub Issues](https://github.com/yourusername/trainbeyond-ai/issues)
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+## 🙏 Acknowledgments
 
-## How can I deploy this project?
+- Inspired by the "Plus Ultra" spirit of My Hero Academia
+- Motivated by Black Clover's "Surpass Your Limits" philosophy
+- Built with modern web technologies and AI
+- Special thanks to our early users and contributors
 
-Simply open [Lovable](https://lovable.dev/projects/fa739e49-dc86-46dd-bd29-6996cebb8d89) and click on Share -> Publish.
+---
 
-## Can I connect a custom domain to my Lovable project?
-
-Yes, you can!
-
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
+<p align="center">Made with ❤️ by the TrainBeyond Team</p>

@@ -1,15 +1,16 @@
-
 import React, { useState } from 'react';
 import { generateWorkoutPlan, WorkoutPlan as WorkoutPlanType } from '@/services/exerciseApi';
-import Header from '@/components/Header';
+import { Header } from '@/components/Header';
 import Footer from '@/components/Footer';
-import GoalSelection from '@/components/GoalSelection';
-import PlanOptions from '@/components/PlanOptions';
+import { GoalSelection } from '@/components/GoalSelection';
+import { PlanOptions } from '@/components/PlanOptions';
 import WorkoutPlan from '@/components/WorkoutPlan';
 import { Dumbbell } from 'lucide-react';
 import { toast } from "sonner";
+import { useNavigate } from 'react-router-dom';
 
 const Index = () => {
+  const navigate = useNavigate();
   const [step, setStep] = useState<'goal' | 'options' | 'plan'>('goal');
   const [goal, setGoal] = useState<string>('');
   const [plan, setPlan] = useState<WorkoutPlanType | null>(null);
@@ -57,6 +58,11 @@ const Index = () => {
     }
   };
 
+  const handlePlanSaved = () => {
+    toast.success("Plan saved! You can view it in your workouts.");
+    navigate('/workouts');
+  };
+
   return (
     <div className="flex flex-col min-h-screen">
       <Header />
@@ -95,19 +101,27 @@ const Index = () => {
         {/* Main Content Based on Step */}
         <div className="py-8">
           {step === 'goal' && (
-            <GoalSelection onSelectGoal={handleGoalSelect} />
+            <GoalSelection onSelect={handleGoalSelect} />
           )}
           
           {step === 'options' && (
-            <PlanOptions 
-              goal={goal} 
-              onBack={handleBack} 
-              onSubmit={handleOptionsSubmit} 
-            />
+            <div className="flex flex-col items-center">
+              <PlanOptions onSelect={handleOptionsSubmit} />
+              {loading && (
+                <div className="mt-8 flex items-center gap-2">
+                  <Dumbbell className="h-5 w-5 animate-bounce" />
+                  <span>Generating your personalized plan...</span>
+                </div>
+              )}
+            </div>
           )}
           
           {step === 'plan' && plan && (
-            <WorkoutPlan plan={plan} onBack={handleBack} />
+            <WorkoutPlan 
+              plan={plan} 
+              onBack={handleBack}
+              onSaved={handlePlanSaved}
+            />
           )}
         </div>
       </main>

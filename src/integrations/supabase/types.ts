@@ -44,109 +44,118 @@ export type Database = {
       }
       profiles: {
         Row: {
-          avatar_url: string | null
-          created_at: string
-          fitness_level: string | null
-          full_name: string | null
           id: string
+          created_at: string
           updated_at: string
           username: string | null
+          full_name: string | null
+          avatar_url: string | null
+          fitness_level: string | null
+          weight: number | null
+          height: number | null
+          age: number | null
         }
         Insert: {
-          avatar_url?: string | null
-          created_at?: string
-          fitness_level?: string | null
-          full_name?: string | null
           id: string
+          created_at?: string
           updated_at?: string
           username?: string | null
+          full_name?: string | null
+          avatar_url?: string | null
+          fitness_level?: string | null
+          weight?: number | null
+          height?: number | null
+          age?: number | null
         }
         Update: {
-          avatar_url?: string | null
-          created_at?: string
-          fitness_level?: string | null
-          full_name?: string | null
           id?: string
+          created_at?: string
           updated_at?: string
           username?: string | null
+          full_name?: string | null
+          avatar_url?: string | null
+          fitness_level?: string | null
+          weight?: number | null
+          height?: number | null
+          age?: number | null
         }
         Relationships: []
       }
       user_exercise_logs: {
         Row: {
-          completed_at: string
-          duration: number | null
-          exercise_id: string
           id: string
-          reps: number
+          created_at: string
+          workout_id: string
+          exercise_id: string
           sets: number
-          user_id: string
+          reps: number
           weight: number | null
-          workout_id: string | null
+          duration: number | null
+          user_id: string
         }
         Insert: {
-          completed_at?: string
-          duration?: number | null
-          exercise_id: string
           id?: string
-          reps: number
+          created_at?: string
+          workout_id: string
+          exercise_id: string
           sets: number
-          user_id: string
+          reps: number
           weight?: number | null
-          workout_id?: string | null
+          duration?: number | null
+          user_id: string
         }
         Update: {
-          completed_at?: string
-          duration?: number | null
-          exercise_id?: string
           id?: string
-          reps?: number
+          created_at?: string
+          workout_id?: string
+          exercise_id?: string
           sets?: number
-          user_id?: string
+          reps?: number
           weight?: number | null
-          workout_id?: string | null
+          duration?: number | null
+          user_id?: string
         }
-        Relationships: [
-          {
-            foreignKeyName: "user_exercise_logs_exercise_id_fkey"
-            columns: ["exercise_id"]
-            isOneToOne: false
-            referencedRelation: "exercises"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "user_exercise_logs_workout_id_fkey"
-            columns: ["workout_id"]
-            isOneToOne: false
-            referencedRelation: "workouts"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       workouts: {
         Row: {
-          created_at: string
-          description: string | null
           id: string
-          name: string
+          created_at: string
           updated_at: string
+          name: string
+          description: string | null
           user_id: string
+          metadata: {
+            exercise_count?: number
+            last_performed?: string
+            total_duration?: number
+          } | null
         }
         Insert: {
-          created_at?: string
-          description?: string | null
           id?: string
-          name: string
+          created_at?: string
           updated_at?: string
+          name: string
+          description?: string | null
           user_id: string
+          metadata?: {
+            exercise_count?: number
+            last_performed?: string
+            total_duration?: number
+          } | null
         }
         Update: {
-          created_at?: string
-          description?: string | null
           id?: string
-          name?: string
+          created_at?: string
           updated_at?: string
+          name?: string
+          description?: string | null
           user_id?: string
+          metadata?: {
+            exercise_count?: number
+            last_performed?: string
+            total_duration?: number
+          } | null
         }
         Relationships: []
       }

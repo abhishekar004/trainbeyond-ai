@@ -24,17 +24,28 @@ const SIDEBAR_WIDTH_MOBILE = "18rem"
 const SIDEBAR_WIDTH_ICON = "3rem"
 const SIDEBAR_KEYBOARD_SHORTCUT = "b"
 
-type SidebarContext = {
-  state: "expanded" | "collapsed"
-  open: boolean
-  setOpen: (open: boolean) => void
-  openMobile: boolean
-  setOpenMobile: (open: boolean) => void
-  isMobile: boolean
-  toggleSidebar: () => void
-}
+const sidebarVariants = cva(
+  "fixed left-0 top-0 z-40 h-screen w-64 transform transition-transform duration-300 ease-in-out",
+  {
+    variants: {
+      variant: {
+        default: "bg-background border-r",
+        floating: "m-4 rounded-lg border shadow-lg",
+      },
+    },
+    defaultVariants: {
+      variant: "default",
+    },
+  }
+)
 
-const SidebarContext = React.createContext<SidebarContext | null>(null)
+const SidebarContext = React.createContext<{
+  collapsed: boolean
+  setCollapsed: (collapsed: boolean) => void
+}>({
+  collapsed: false,
+  setCollapsed: () => {},
+})
 
 function useSidebar() {
   const context = React.useContext(SidebarContext)
@@ -114,17 +125,15 @@ const SidebarProvider = React.forwardRef<
     // This makes it easier to style the sidebar with Tailwind classes.
     const state = open ? "expanded" : "collapsed"
 
-    const contextValue = React.useMemo<SidebarContext>(
+    const contextValue = React.useMemo<{
+      collapsed: boolean
+      setCollapsed: (collapsed: boolean) => void
+    }>(
       () => ({
-        state,
-        open,
-        setOpen,
-        isMobile,
-        openMobile,
-        setOpenMobile,
-        toggleSidebar,
+        collapsed: state === "collapsed",
+        setCollapsed: setOpen,
       }),
-      [state, open, setOpen, isMobile, openMobile, setOpenMobile, toggleSidebar]
+      [state, setOpen]
     )
 
     return (

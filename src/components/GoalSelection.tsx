@@ -1,67 +1,85 @@
-
 import React from 'react';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Dumbbell, Flame, Heart } from "lucide-react";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Dumbbell, Scale, Timer, Target } from 'lucide-react';
 
 interface GoalSelectionProps {
-  onSelectGoal: (goal: string) => void;
+  onSelect: (goal: string) => void;
 }
 
-const GoalSelection: React.FC<GoalSelectionProps> = ({ onSelectGoal }) => {
-  const goals = [
-    {
-      id: 'weight-loss',
-      title: 'Weight/Fat Loss',
-      description: 'Burn calories and reduce body fat percentage',
-      icon: <Flame className="h-8 w-8 text-red-500" />,
-      color: 'bg-red-50 hover:bg-red-100'
-    },
-    {
-      id: 'muscle-gain',
-      title: 'Muscle Gain',
-      description: 'Build muscle mass and increase strength',
-      icon: <Dumbbell className="h-8 w-8 text-blue-500" />,
-      color: 'bg-blue-50 hover:bg-blue-100'
-    },
-    {
-      id: 'general-fitness',
-      title: 'General Fitness',
-      description: 'Improve overall health and conditioning',
-      icon: <Heart className="h-8 w-8 text-green-500" />,
-      color: 'bg-green-50 hover:bg-green-100'
-    }
-  ];
+const goals = [
+  {
+    id: 'weight-loss',
+    title: 'Weight Loss',
+    description: 'Burn fat and improve body composition through cardio and strength training.',
+    icon: Scale
+  },
+  {
+    id: 'muscle-gain',
+    title: 'Muscle Gain',
+    description: 'Build muscle mass and strength through progressive overload training.',
+    icon: Dumbbell
+  },
+  {
+    id: 'endurance',
+    title: 'Endurance',
+    description: 'Improve cardiovascular fitness and stamina through endurance training.',
+    icon: Timer
+  },
+  {
+    id: 'general-fitness',
+    title: 'General Fitness',
+    description: 'Enhance overall fitness and well-being with balanced workouts.',
+    icon: Target
+  }
+];
+
+export function GoalSelection({ onSelect }: GoalSelectionProps) {
+  const [selectedGoal, setSelectedGoal] = React.useState<string>("");
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <h2 className="text-3xl font-bold text-center mb-2">What's Your Fitness Goal?</h2>
-      <p className="text-center text-muted-foreground mb-8">Select your primary fitness goal to get started</p>
-      
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {goals.map((goal) => (
-          <Card 
-            key={goal.id} 
-            className={`cursor-pointer transition-all duration-300 hover:shadow-lg fitness-card-shadow ${goal.color}`}
-            onClick={() => onSelectGoal(goal.id)}
-          >
-            <CardHeader className="flex flex-col items-center">
-              <div className="p-3 rounded-full mb-4">
-                {goal.icon}
-              </div>
-              <CardTitle>{goal.title}</CardTitle>
-            </CardHeader>
-            <CardContent className="text-center">
-              <CardDescription>{goal.description}</CardDescription>
-            </CardContent>
-            <CardFooter className="flex justify-center pt-0">
-              <Button variant="outline">Select This Goal</Button>
-            </CardFooter>
-          </Card>
-        ))}
+    <div className="container mx-auto px-4">
+      <div className="max-w-4xl mx-auto">
+        <h2 className="text-2xl font-bold mb-2">Select Your Goal</h2>
+        <p className="text-muted-foreground mb-6">Choose your primary fitness goal to get a personalized workout plan.</p>
+        
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {goals.map((goal) => {
+            const Icon = goal.icon;
+            const isSelected = selectedGoal === goal.id;
+            
+            return (
+              <Card 
+                key={goal.id}
+                className={`cursor-pointer transition-all hover:shadow-lg ${
+                  isSelected 
+                    ? 'ring-2 ring-primary bg-primary/5' 
+                    : 'hover:bg-muted/50'
+                }`}
+                onClick={() => {
+                  setSelectedGoal(goal.id);
+                  onSelect(goal.id);
+                }}
+              >
+                <CardHeader>
+                  <div className="flex items-center gap-4">
+                    <div className={`p-2 rounded-lg ${
+                      isSelected ? 'bg-primary text-primary-foreground' : 'bg-muted'
+                    }`}>
+                      <Icon className="h-6 w-6" />
+                    </div>
+                    <div>
+                      <CardTitle className="text-lg">{goal.title}</CardTitle>
+                      <CardDescription className="mt-1">
+                        {goal.description}
+                      </CardDescription>
+                    </div>
+                  </div>
+                </CardHeader>
+              </Card>
+            );
+          })}
+        </div>
       </div>
     </div>
   );
-};
-
-export default GoalSelection;
+}

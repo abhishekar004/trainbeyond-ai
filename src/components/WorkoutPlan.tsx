@@ -1,9 +1,8 @@
-
 import React, { useEffect, useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Calendar, CheckCircle2, ExternalLink, PlayCircle } from "lucide-react";
+import { ArrowLeft, Calendar, CheckCircle2, ExternalLink, PlayCircle, Save } from "lucide-react";
 import { 
   searchExercisesByBodyPart, 
   fetchExerciseVideos, 
@@ -12,18 +11,24 @@ import {
   WorkoutPlan as WorkoutPlanType,
   getTargetMusclesByFocus 
 } from '@/services/exerciseApi';
+import { useAuth } from '@/contexts/AuthContext';
+import { supabase } from '@/integrations/supabase/client';
+import { toast } from 'sonner';
 
 interface WorkoutPlanProps {
   plan: WorkoutPlanType;
   onBack: () => void;
+  onSaved?: () => void;
 }
 
-const WorkoutPlan: React.FC<WorkoutPlanProps> = ({ plan, onBack }) => {
+const WorkoutPlan: React.FC<WorkoutPlanProps> = ({ plan, onBack, onSaved }) => {
+  const { user } = useAuth();
   const [activeDay, setActiveDay] = useState("0");
   const [exercises, setExercises] = useState<Exercise[]>([]);
   const [videos, setVideos] = useState<Video[]>([]);
   const [loadingExercises, setLoadingExercises] = useState(false);
   const [loadingVideos, setLoadingVideos] = useState(false);
+  const [saving, setSaving] = useState(false);
 
   // For demo purposes, we'll load exercises when a day is selected
   useEffect(() => {
@@ -94,6 +99,103 @@ const WorkoutPlan: React.FC<WorkoutPlanProps> = ({ plan, onBack }) => {
     loadVideos();
   }, [exercises, activeDay, plan]);
 
+  const handleSaveWorkoutPlan = async () => {
+    if (!user) {
+      toast.error('Please sign in to save this workout plan');
+      return;
+    }
+
+    try {
+      setSaving(true);
+
+      // First create the main workout with proper metadata type
+      const { data: workoutData, error: workoutError } = await supabase
+        .from('workouts')
+        .insert([
+          {
+            name: `${plan.goal} Plan`,
+            description: plan.description || '',
+            user_id: user.id,
+            metadata: {
+              exercise_count: exercises.length,
+              goal: plan.goal,
+              schedule: plan.weeklySchedule,
+              tips: plan.tips
+            }
+          }
+        ])
+        .select();
+
+      if (workoutError) throw workoutError;
+
+      if (workoutData && workoutData[0] && exercises.length > 0) {
+        // First, ensure all exercises exist in the exercises table
+        for (const exercise of exercises) {
+          // Check if exercise already exists by name
+          const { data: existingExercise } = await supabase
+            .from('exercises')
+            .select('id')
+            .eq('name', exercise.name)
+            .single();
+
+          if (!existingExercise) {
+            // Generate a new UUID for the exercise
+            const exerciseId = crypto.randomUUID();
+            
+            // Insert the exercise if it doesn't exist with proper types
+            const { error: exerciseError } = await supabase
+              .from('exercises')
+              .insert([{
+                id: exerciseId,
+                name: exercise.name,
+                body_part: exercise.bodyPart || '',
+                equipment: exercise.equipment || '',
+                difficulty_level: 'intermediate',
+                description: typeof exercise.instructions === 'string' ? exercise.instructions : '',
+                image_url: exercise.gifUrl || ''
+              }]);
+
+            if (exerciseError) throw exerciseError;
+
+            // Store the generated UUID for use in exercise logs
+            exercise.id = exerciseId;
+          } else {
+            // Use the existing exercise ID
+            exercise.id = existingExercise.id;
+          }
+        }
+
+        // Then add the exercises to user_exercise_logs with complete information
+        const exerciseLogs = exercises.map(exercise => ({
+          workout_id: workoutData[0].id,
+          exercise_id: exercise.id,
+          sets: 3,
+          reps: 12,
+          user_id: user.id,
+          metadata: {
+            bodyPart: exercise.bodyPart,
+            equipment: exercise.equipment,
+            gifUrl: exercise.gifUrl,
+            instructions: exercise.instructions
+          }
+        }));
+
+        const { error: logsError } = await supabase
+          .from('user_exercise_logs')
+          .insert(exerciseLogs);
+
+        if (logsError) throw logsError;
+      }
+
+      toast.success('Workout plan saved successfully!');
+      onSaved?.();
+    } catch (error: any) {
+      toast.error(`Error saving workout plan: ${error.message}`);
+    } finally {
+      setSaving(false);
+    }
+  };
+
   // Add null check for plan
   if (!plan || !plan.weeklySchedule) {
     return (
@@ -114,12 +216,31 @@ const WorkoutPlan: React.FC<WorkoutPlanProps> = ({ plan, onBack }) => {
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <div className="flex items-center mb-6">
-        <Button variant="ghost" onClick={onBack} className="mr-2">
-          <ArrowLeft className="h-4 w-4 mr-2" />
-          Back
+      <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center">
+          <Button variant="ghost" onClick={onBack} className="mr-2">
+            <ArrowLeft className="h-4 w-4 mr-2" />
+            Back
+          </Button>
+          <h2 className="text-2xl font-bold">Your {plan.goal} Workout Plan</h2>
+        </div>
+        <Button 
+          onClick={handleSaveWorkoutPlan} 
+          disabled={saving || !user}
+          className="ml-4"
+        >
+          {saving ? (
+            <div className="flex items-center">
+              <div className="animate-spin h-4 w-4 border-2 border-current border-t-transparent rounded-full mr-2" />
+              Saving...
+            </div>
+          ) : (
+            <>
+              <Save className="h-4 w-4 mr-2" />
+              Save Plan
+            </>
+          )}
         </Button>
-        <h2 className="text-2xl font-bold">Your {plan.goal} Workout Plan</h2>
       </div>
       
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
